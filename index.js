@@ -9,7 +9,7 @@ import { verrifyToken } from './middleware/session.js'; // renamed from sessionM
 dotenv.config();
 
 const app = express();
-const port = 1080;
+const port = process.env.PORT || 1080;
 
 // Middleware
 app.use(cors());

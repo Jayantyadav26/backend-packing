@@ -32,7 +32,7 @@ try {
 }
 
 // Signup Route
-app.post("signup", async (req, res) => {
+app.post("/signup", async (req, res) => {
   const { username, password } = req.body;
 
   try {
@@ -49,7 +49,7 @@ app.post("signup", async (req, res) => {
 });
 
 // Signin Route (returns JWT)
-app.post("signin", async (req, res) => {
+app.post("/signin", async (req, res) => {
   const { username, password } = req.body;
 
   try {
@@ -59,7 +59,7 @@ app.post("signin", async (req, res) => {
     const user = result[0];
     const isMatch = await compare(password, user.password);
 
-    if (!isMatch) return res.status(401).send("Invalid password");
+    if (!isMatch) return res.status(400).send("Invalid password");
 
     const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
     return res.status(200).json({ token });
@@ -70,7 +70,7 @@ app.post("signin", async (req, res) => {
 });
 
 // Protected Routes Using JWT Middleware
-app.post("packing", verrifyToken, async (req, res) => {
+app.post("/packing", verrifyToken, async (req, res) => {
   const { itemName, boxNumber } = req.body;
   if (!itemName || !boxNumber) return res.status(400).send("Missing item name or box number");
 
@@ -83,7 +83,7 @@ app.post("packing", verrifyToken, async (req, res) => {
   }
 });
 
-app.post("unpack", verrifyToken, async (req, res) => {
+app.post("/unpack", verrifyToken, async (req, res) => {
   const { boxNumber } = req.body;
   if (!boxNumber) return res.status(400).send("Missing box number");
 
@@ -96,7 +96,7 @@ app.post("unpack", verrifyToken, async (req, res) => {
   }
 });
 
-app.post("item", verrifyToken, async (req, res) => {
+app.post("/item", verrifyToken, async (req, res) => {
   const { itemName } = req.body;
   if (!itemName) return res.status(400).send("Missing item name");
 
@@ -110,7 +110,7 @@ app.post("item", verrifyToken, async (req, res) => {
 });
 
 // Dummy Logout (handled on client)
-app.post("logout", (req, res) => {
+app.post("/logout", (req, res) => {
   // No server-side action needed for JWT logout
   res.status(200).send("Client should delete token to logout");
 });

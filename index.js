@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import mysql from 'mysql2/promise';
-import bcrypt from 'bcrypt';
+import {hash, compare} from './scrypt.js'; // renamed from scrypt.js
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { verrifyToken } from './middleware/session.js'; // renamed from sessionMiddleware
@@ -39,7 +39,7 @@ app.post("/signup", async (req, res) => {
     const [result] = await db.query("SELECT * FROM users WHERE username = ?", [username]);
     if (result.length > 0) return res.status(400).send("Username already exists");
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hash(password, 10);
     await db.query("INSERT INTO users (username, password) VALUES (?, ?)", [username, hashedPassword]);
     res.status(200).send("User created successfully");
   } catch (err) {
@@ -57,9 +57,9 @@ app.post("/signin", async (req, res) => {
     if (result.length === 0) return res.status(400).send("User not found");
 
     const user = result[0];
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await compare(password, user.password);
 
-    if (!isMatch) return res.status(400).send("Invalid password");
+    if (!isMatch) return res.status(401).send("Invalid password");
 
     const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
     return res.status(200).json({ token });

@@ -109,6 +109,20 @@ app.post("/item", verrifyToken, async (req, res) => {
   }
 });
 
+app.post("/deleteItem", verrifyToken, async (req, res) => {
+  const { itemNumber } = req.body;
+  try {
+    const [result] = await db.query("DELETE FROM itemList WHERE itemNumber = ?", [itemNumber]);
+    result.affectedRows > 0
+      ? res.status(200).send(result)
+      : res.status(404).send("Item not found");
+  } catch (err) {
+    console.error("Error deleting item:", err);
+    res.status(500).send("Error deleting item");
+  }
+});
+
+
 // Dummy Logout (handled on client)
 app.post("/logout", (req, res) => {
   // No server-side action needed for JWT logout
